@@ -7,10 +7,11 @@ export const runtime = 'nodejs';
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const resolvedParams = await params;
   const destination = destinations.find(
-    d => d._id === params.id || d.slug === params.id
+    d => d._id === resolvedParams.id || d.slug === resolvedParams.id
   );
 
   if (!destination) {
@@ -33,15 +34,16 @@ export async function GET(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const token = extractToken(req.headers.get('authorization'));
   const payload = token ? verifyToken(token) : null;
   if (!payload) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
 
-  const idx = destinations.findIndex(d => d._id === params.id);
+  const idx = destinations.findIndex(d => d._id === id);
   if (idx === -1) {
     return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
   }
