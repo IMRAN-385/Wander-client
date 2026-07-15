@@ -10,7 +10,7 @@ import { UserPlus } from 'lucide-react';
 import { registerSchema, type RegisterFormData } from '@/lib/validators';
 import { useAuth } from '@/providers/AppProvider';
 import { Input } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
+import  Button  from '@/components/ui/Button';
 import api from '@/lib/api-client';
 import { toast } from 'sonner';
 

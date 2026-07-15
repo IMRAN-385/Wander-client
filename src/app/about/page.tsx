@@ -1,13 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { Instagram, Twitter, Youtube, Facebook } from 'lucide-react';
+import { FaInstagram, FaTwitter, FaYoutube, FaFacebook } from 'react-icons/fa';
 
 const socials = [
-  { icon: Instagram, href: '#', label: 'Instagram' },
-  { icon: Twitter, href: '#', label: 'Twitter' },
-  { icon: Youtube, href: '#', label: 'YouTube' },
-  { icon: Facebook, href: '#', label: 'Facebook' },
+  { icon: FaInstagram, href: '#', label: 'Instagram' },
+  { icon: FaTwitter, href: '#', label: 'Twitter' },
+  { icon: FaYoutube, href: '#', label: 'YouTube' },
+  { icon: FaFacebook, href: '#', label: 'Facebook' },
 ];
 
 const footerLinks = {

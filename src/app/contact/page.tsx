@@ -5,9 +5,9 @@ import { motion, useInView } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Mail, MapPin, Phone, Send, CheckCircle } from 'lucide-react';
-import { contactSchema, type ContactFormData } from '@/lib/validators';
-import { Input, Textarea } from '@/data/components/ui/Input';
-import { Button } from '@/data/components/ui/Button';
+import { contactSchema, type ContactFormData } from '../../lib/validators';
+import { Input, Textarea } from '@/components/ui/Input';
+import  Button  from '@/components/ui/Button';
 import { toast } from 'sonner';
 
 const contacts = [
