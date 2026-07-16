@@ -17,6 +17,14 @@ const heroSlides = [
   { image: 'https://images.unsplash.com/photo-1504829857797-ddff29c27927?w=1600', title: 'Chase the', highlight: 'Northern Lights', subtitle: 'Experience nature\'s most spectacular light show across Iceland\'s skies.' },
 ];
 
+const heroParticles = Array.from({ length: 15 }, (_, i) => ({
+  id: i,
+  left: `${(i * 7 + 9) % 100}%`,
+  top: `${(i * 13 + 5) % 100}%`,
+  duration: 3 + ((i % 5) + 1) * 0.4,
+  delay: (i % 7) * 0.6,
+}));
+
 const stats = [
   { label: 'Destinations', value: 200, suffix: '+' },
   { label: 'Countries', value: 60, suffix: '+' },
@@ -119,12 +127,12 @@ export default function HomePage() {
 
         {/* Floating particles */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(15)].map((_, i) => (
-            <motion.div key={i}
+          {heroParticles.map((particle) => (
+            <motion.div key={particle.id}
               className="absolute w-1 h-1 bg-white/30 rounded-full"
-              style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%` }}
+              style={{ left: particle.left, top: particle.top }}
               animate={{ y: [0, -30, 0], opacity: [0, 0.6, 0] }}
-              transition={{ duration: 3 + Math.random() * 4, repeat: Infinity, delay: Math.random() * 5 }}
+              transition={{ duration: particle.duration, repeat: Infinity, delay: particle.delay }}
             />
           ))}
         </div>

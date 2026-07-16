@@ -6,6 +6,7 @@ import { motion, useInView } from 'framer-motion';
 import { Clock, ArrowRight, Search } from 'lucide-react';
 import { IBlog, PaginatedResponse } from '@/types';
 import { formatDate } from '@/lib/utils';
+import { blogs as fallbackBlogs } from '@/data/collections';
 
 const ScrollReveal = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => {
   const ref = useRef(null);
@@ -28,18 +29,28 @@ export default function BlogPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/blogs')
-      .then(r => r.json())
-      .then(d => {
-        if (d.success) setBlogs(d.data.items);
-      })
-      .finally(() => setLoading(false));
+    const loadBlogs = async () => {
+      try {
+        const response = await fetch('/api/blogs');
+        const data = await response.json();
+        if (data?.success && Array.isArray(data?.data?.items)) {
+          setBlogs(data.data.items);
+          return;
+        }
+      } catch {
+        // fall back to local seed data below
+      }
+
+      setBlogs(fallbackBlogs as IBlog[]);
+    };
+
+    loadBlogs().finally(() => setLoading(false));
   }, []);
 
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="relative py-20 bg-gradient-to-br from-primary-900 to-dark-900">
+      <section className="relative py-20 bg-gradient-to-br from-primary-200 to-dark-700">
         <div className="absolute inset-0 bg-mesh opacity-20" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>

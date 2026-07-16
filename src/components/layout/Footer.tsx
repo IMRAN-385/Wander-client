@@ -4,10 +4,10 @@ import Link from 'next/link';
 import { FaInstagram, FaTwitter, FaYoutube, FaFacebook } from 'react-icons/fa';
 
 const socials = [
-  { icon: FaInstagram, href: '#', label: 'Instagram' },
-  { icon: FaTwitter, href: '#', label: 'Twitter' },
-  { icon: FaYoutube, href: '#', label: 'YouTube' },
-  { icon: FaFacebook, href: '#', label: 'Facebook' },
+  { icon: FaInstagram, href: "https://instagram.com", label: "Instagram" },
+  { icon: FaTwitter, href: "https://x.com", label: "Twitter" },
+  { icon: FaYoutube, href: "https://youtube.com", label: "YouTube" },
+  { icon: FaFacebook, href: "https://facebook.com", label: "Facebook" },
 ];
 
 const footerLinks = {
@@ -59,14 +59,18 @@ export default function Footer() {
           {Object.entries(footerLinks).map(([title, links]) => (
             <div key={title}>
               <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">{title}</h4>
+              
               <ul className="space-y-3">
-                {links.map(link => (
-                  <li key={link.href}>
-                    <Link href={link.href} className="text-dark-300 hover:text-white text-sm transition-colors">
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
+                {links.map((link, index) => (
+  <li key={`${title}-${index}-${link.label}`}>
+    <Link
+      href={link.href}
+      className="text-dark-300 hover:text-white text-sm transition-colors"
+    >
+      {link.label}
+    </Link>
+  </li>
+))}
               </ul>
             </div>
           ))}

@@ -1,314 +1,208 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Star, Clock, Calendar, Navigation, ChevronLeft, ChevronRight, Heart, Share2 } from 'lucide-react';
-import { IDestination, IReview } from '@/types';
-import DestinationCard from '@/components/destinations/DestinationCard';
-import { formatPrice, formatDate, getTimeAgo } from '@/lib/utils';
+import { motion } from 'framer-motion';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Eye, EyeOff, LogIn, Compass, User, Crown } from 'lucide-react';
+import { loginSchema, type LoginFormData } from '@/lib/validators';
 import { useAuth } from '@/providers/AppProvider';
+import { Input } from '@/components/ui/Input';
+import Button from '@/components/ui/Button';
+import api from '@/lib/api-client';
+import { toast } from 'sonner';
 
-export default function DestinationDetailPage() {
-  const { id } = useParams<{ id: string }>();
-  const { user, toggleWishlist } = useAuth();
-  const [destination, setDestination] = useState<IDestination | null>(null);
-  const [reviews, setReviews] = useState<IReview[]>([]);
-  const [related, setRelated] = useState<IDestination[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [activeImage, setActiveImage] = useState(0);
+export default function LoginPage() {
+  const router = useRouter();
+  const { login } = useAuth();
+  const [showPw, setShowPw] = useState(false);
+  const [serverError, setServerError] = useState('');
 
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
-      try {
-        const res = await fetch(`/api/destinations/${id}`);
-        const data = await res.json();
-        if (data.success) {
-          setDestination(data.data.destination);
-          setReviews(data.data.reviews || []);
-          setRelated(data.data.related || []);
-        }
-      } finally { setLoading(false); }
+  const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: '', password: '' },
+  });
+
+  const onSubmit = async (data: LoginFormData) => {
+    setServerError('');
+    try {
+      const res = await api.post('/api/auth/login', data);
+      if (res.data.success) {
+        login(res.data.data.user, res.data.data.token);
+        toast.success('Welcome back!');
+        router.push('/');
+      } else {
+        setServerError(res.data.error || 'Login failed');
+      }
+    } catch (err: any) {
+      setServerError(err.response?.data?.error || 'Something went wrong');
     }
-    load();
-  }, [id]);
+  };
 
-  if (loading) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 py-8 animate-pulse space-y-6">
-        <div className="h-96 bg-dark-100 rounded-3xl" />
-        <div className="h-8 w-2/3 bg-dark-100 rounded" />
-        <div className="h-4 w-1/2 bg-dark-100 rounded" />
-      </div>
-    );
-  }
+  const fillDemo = () => {
+    setValue('email', 'demo@wanderlust.com');
+    setValue('password', 'Demo@123');
+  };
 
-  if (!destination) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 py-32 text-center">
-        <div className="text-6xl mb-4">😕</div>
-        <h1 className="text-3xl font-display font-bold text-dark-900 mb-2">Destination Not Found</h1>
-        <Link href="/explore" className="text-primary-600 font-semibold">← Back to Explore</Link>
-      </div>
-    );
-  }
-
-  const isWishlisted = user?.wishlist?.includes(destination._id);
+  const fillAdmin = () => {
+    setValue('email', 'admin@wanderlust.com');
+    setValue('password', 'Demo@123');
+  };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
-      {/* Image Gallery */}
-      <div className="relative h-[50vh] sm:h-[60vh] min-h-[400px] overflow-hidden">
-        <AnimatePresence mode="wait">
-          <motion.img
-            key={activeImage}
+    <div className="relative min-h-screen flex items-center justify-center px-4 py-16 overflow-hidden">
+      {/* Background image */}
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: "url('/images/auth-bg.jpg')" }}
+      />
+      {/* Dark gradient overlay for readability */}
+      <div className="absolute inset-0 bg-gradient-to-b from-dark-900/70 via-dark-900/50 to-dark-900/80" />
+
+      {/* Soft animated glow accents */}
+      <motion.div
+        className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-primary-400/20 blur-3xl"
+        animate={{ x: [0, 40, 0], y: [0, 30, 0] }}
+        transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <motion.div
+        className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-accent-400/20 blur-3xl"
+        animate={{ x: [0, -30, 0], y: [0, -40, 0] }}
+        transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
+      />
+
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+        className="relative w-full max-w-md"
+      >
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.4 }}
+          className="text-center mb-8"
+        >
+          <Link href="/" className="inline-flex items-center gap-2 mb-4">
+            <motion.span
+              className="flex items-center justify-center w-9 h-9 rounded-full bg-primary-600 text-white"
+              whileHover={{ rotate: 25, scale: 1.08 }}
+              transition={{ duration: 0.4 }}
+            >
+              <Compass className="w-5 h-5" strokeWidth={2.2} />
+            </motion.span>
+            <span className="text-xl font-display font-bold text-white">Wanderlust</span>
+          </Link>
+          <h1 className="text-2xl sm:text-3xl font-display font-bold text-white">Welcome Back</h1>
+          <p className="text-white/70 text-sm mt-1">Sign in to continue your journey</p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15, duration: 0.4 }}
+          className="bg-white/95 backdrop-blur-xl rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/20"
+        >
+          {serverError && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl text-red-700 text-sm"
+            >
+              {serverError}
+            </motion.div>
+          )}
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            <motion.div
+              initial={{ opacity: 0, x: -12 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2, duration: 0.35 }}
+            >
+              <Input
+                id="email" label="Email Address" type="email"
+                placeholder="you@example.com"
+                {...register('email')}
+                error={errors.email?.message}
+              />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: -12 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.28, duration: 0.35 }}
+              className="relative"
+            >
+              <Input
+                id="password" label="Password"
+                type={showPw ? 'text' : 'password'}
+                placeholder="••••••••"
+                {...register('password')}
+                error={errors.password?.message}
+                className="pr-12"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPw(!showPw)}
+                className="absolute right-3 top-[34px] text-dark-400 hover:text-dark-600 transition-colors"
+              >
+                {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35, duration: 0.35 }}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <Button type="submit" variant="accent" size="lg" className="w-full" disabled={isSubmitting}>
+                <LogIn className="w-4 h-4 mr-2" />
+                {isSubmitting ? 'Signing in...' : 'Sign In'}
+              </Button>
+            </motion.div>
+          </form>
+
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            src={destination.images[activeImage]}
-            alt={destination.title}
-            className="w-full h-full object-cover"
-          />
-        </AnimatePresence>
-        <div className="absolute inset-0 bg-gradient-to-t from-dark-900/60 via-transparent to-transparent" />
-
-        {destination.images.length > 1 && (
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
-            {destination.images.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setActiveImage(i)}
-                className={`w-2.5 h-2.5 rounded-full transition-all ${
-                  i === activeImage ? 'bg-white w-8' : 'bg-white/50'
-                }`}
-              />
-            ))}
-          </div>
-        )}
-
-        <div className="absolute top-4 left-4">
-          <Link href="/explore" className="glass rounded-full p-2.5 inline-flex hover:bg-white/90 transition-colors">
-            <ChevronLeft className="w-5 h-5 text-dark-700" />
-          </Link>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-10">
-            {/* Header */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-3xl p-6 sm:p-8 card-shadow">
-              <div className="flex flex-wrap gap-2 mb-3">
-                <span className="bg-primary-50 text-primary-700 text-xs font-semibold px-3 py-1.5 rounded-full">
-                  {destination.category}
-                </span>
-                <span className="bg-dark-50 text-dark-600 text-xs px-3 py-1.5 rounded-full">
-                  {destination.continent}
-                </span>
-              </div>
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div>
-                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-display font-bold text-dark-900 mb-2">
-                    {destination.title}
-                  </h1>
-                  <div className="flex items-center gap-1.5 text-dark-400 text-sm">
-                    <MapPin className="w-4 h-4" /> {destination.location}, {destination.country}
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => toggleWishlist(destination._id)}
-                    className={`p-3 rounded-full border transition-all ${
-                      isWishlisted
-                        ? 'bg-red-50 border-red-200 text-red-500'
-                        : 'bg-white border-dark-200 text-dark-400 hover:border-dark-300'
-                    }`}
-                  >
-                    <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-current' : ''}`} />
-                  </button>
-                  <button className="p-3 rounded-full bg-white border border-dark-200 text-dark-400 hover:border-dark-300 transition-all">
-                    <Share2 className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 mt-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className={`w-5 h-5 ${
-                    i < Math.round(destination.rating) ? 'fill-accent-400 text-accent-400' : 'text-dark-200'
-                  }`} />
-                ))}
-                <span className="text-lg font-bold text-dark-900">{destination.rating.toFixed(1)}</span>
-                <span className="text-sm text-dark-400">({destination.reviewCount} reviews)</span>
-              </div>
-
-              <p className="text-dark-600 leading-relaxed mt-6 whitespace-pre-line">
-                {destination.fullDescription}
-              </p>
-            </motion.div>
-
-            {/* Key Info */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="bg-white rounded-3xl p-6 sm:p-8 card-shadow"
-            >
-              <h2 className="text-xl font-display font-bold text-dark-900 mb-6">Key Information</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                <div className="bg-dark-50 rounded-2xl p-4">
-                  <Clock className="w-5 h-5 text-primary-600 mb-2" />
-                  <div className="text-xs text-dark-400 mb-0.5">Best Season</div>
-                  <div className="text-sm font-semibold text-dark-900">{destination.bestSeason}</div>
-                </div>
-                <div className="bg-dark-50 rounded-2xl p-4">
-                  <Calendar className="w-5 h-5 text-primary-600 mb-2" />
-                  <div className="text-xs text-dark-400 mb-0.5">Price</div>
-                  <div className="text-sm font-semibold text-dark-900">
-                    {formatPrice(destination.price)} <span className="text-xs text-dark-400 font-normal">/day</span>
-                  </div>
-                </div>
-                <div className="bg-dark-50 rounded-2xl p-4">
-                  <Navigation className="w-5 h-5 text-primary-600 mb-2" />
-                  <div className="text-xs text-dark-400 mb-0.5">Continent</div>
-                  <div className="text-sm font-semibold text-dark-900">{destination.continent}</div>
-                </div>
-              </div>
-
-              {destination.highlights.length > 0 && (
-                <div className="mt-6">
-                  <h3 className="font-semibold text-dark-900 mb-3">Highlights</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {destination.highlights.map((h, i) => (
-                      <span key={i} className="bg-primary-50 text-primary-700 text-xs px-3 py-1.5 rounded-full">
-                        {h}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="mt-6">
-                <h3 className="font-semibold text-dark-900 mb-3">Activities</h3>
-                <div className="flex flex-wrap gap-2">
-                  {destination.activities.map((a, i) => (
-                    <span key={i} className="bg-dark-50 text-dark-600 text-xs px-3 py-1.5 rounded-full border border-dark-100">
-                      {a}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Reviews */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="bg-white rounded-3xl p-6 sm:p-8 card-shadow"
-            >
-              <h2 className="text-xl font-display font-bold text-dark-900 mb-6">
-                Reviews ({reviews.length})
-              </h2>
-              {reviews.length > 0 ? (
-                <div className="space-y-4">
-                  {reviews.map(r => (
-                    <div key={r._id} className="bg-dark-50 rounded-2xl p-5">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold text-sm">
-                            {r.userName.charAt(0)}
-                          </div>
-                          <div>
-                            <div className="font-semibold text-dark-900 text-sm">{r.userName}</div>
-                            <div className="text-xs text-dark-400">{getTimeAgo(r.createdAt)}</div>
-                          </div>
-                        </div>
-                        <div className="flex gap-0.5">
-                          {[...Array(5)].map((_, i) => (
-                            <Star key={i} className={`w-3.5 h-3.5 ${
-                              i < r.rating ? 'fill-accent-400 text-accent-400' : 'text-dark-200'
-                            }`} />
-                          ))}
-                        </div>
-                      </div>
-                      <p className="text-sm text-dark-600 leading-relaxed">{r.comment}</p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-dark-400 text-sm">No reviews yet.</p>
-              )}
-            </motion.div>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 }}
-              className="bg-white rounded-3xl p-6 card-shadow sticky top-24"
-            >
-              <div className="text-3xl font-display font-bold text-dark-900 mb-1">
-                {formatPrice(destination.price)}
-              </div>
-              <div className="text-sm text-dark-400 mb-6">per day per person</div>
-              <button className="w-full gradient-primary text-white font-semibold py-3.5 rounded-2xl hover:opacity-90 transition-opacity shadow-glow mb-3">
-                Reserve Now
-              </button>
-              <p className="text-xs text-dark-400 text-center">
-                Listed by {destination.authorName} on {formatDate(destination.createdAt)}
-              </p>
-            </motion.div>
-
-            {/* Thumbnails */}
-            <div className="grid grid-cols-4 gap-2">
-              {destination.images.slice(0, 4).map((img, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActiveImage(i)}
-                  className={`rounded-xl overflow-hidden border-2 transition-all ${
-                    i === activeImage ? 'border-primary-500' : 'border-transparent opacity-60 hover:opacity-100'
-                  }`}
-                >
-                  <img src={img} alt="" className="w-full h-20 object-cover" />
-                </button>
-              ))}
+            transition={{ delay: 0.45, duration: 0.4 }}
+            className="mt-6 space-y-3"
+          >
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-dark-100" /></div>
+              <div className="relative flex justify-center text-xs"><span className="bg-white px-3 text-dark-400">Quick Access</span></div>
             </div>
-          </div>
-        </div>
 
-        {/* Related */}
-        {related.length > 0 && (
-          <section className="mt-16 pt-12 border-t border-dark-100">
-            <div className="flex items-end justify-between mb-8">
-              <h2 className="text-2xl sm:text-3xl font-display font-bold text-dark-900">
-                More {destination.category} Destinations
-              </h2>
-              <Link
-                href={`/explore?category=${destination.category}`}
-                className="text-primary-600 font-semibold text-sm hidden sm:inline"
-              >
-                View All →
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {related.map(d => (
-                <DestinationCard
-                  key={d._id}
-                  destination={d}
-                  onWishlist={toggleWishlist}
-                  isWishlisted={user?.wishlist?.includes(d._id)}
-                />
-              ))}
-            </div>
-          </section>
-        )}
-      </div>
+            <motion.button
+              onClick={fillDemo}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full flex items-center justify-center gap-2 bg-dark-50 hover:bg-dark-100 text-dark-700 py-3 rounded-2xl text-sm font-medium transition-colors border border-dark-200"
+            >
+              <User className="w-4 h-4" />
+              Demo User Login
+            </motion.button>
+
+            <motion.button
+              onClick={fillAdmin}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full flex items-center justify-center gap-2 bg-primary-50 hover:bg-primary-100 text-primary-800 py-3 rounded-2xl text-sm font-medium transition-colors border border-primary-200"
+            >
+              <Crown className="w-4 h-4" />
+              Admin Login
+            </motion.button>
+          </motion.div>
+
+          <p className="text-center text-sm text-dark-400 mt-6">
+            No account? <Link href="/register" className="text-primary-600 font-semibold hover:text-primary-700">Create one</Link>
+          </p>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }

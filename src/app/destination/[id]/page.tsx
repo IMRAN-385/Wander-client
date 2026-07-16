@@ -40,8 +40,8 @@ function getTimeAgo(value: string | undefined) {
 }
 
 export default function DestinationDetailPage() {
-  const params = useParams<{ id?: string }>();
-  const id = params?.id;
+  const params = useParams<{ id?: string; slug?: string }>();
+  const routeParam = params?.id ?? params?.slug;
   const { user, toggleWishlist } = useAuth() as any;
 
   const [destination, setDestination] = useState<any>(null);
@@ -51,13 +51,27 @@ export default function DestinationDetailPage() {
   const [activeImage, setActiveImage] = useState(0);
 
   useEffect(() => {
-    if (!id) return;
+    if (!routeParam) return;
 
     async function load() {
       setLoading(true);
       try {
-        const res = await fetch(`/api/destinations/${id}`);
-        const data = await res.json();
+        const res = await fetch(`/api/destinations/${routeParam}`, { cache: 'no-store' });
+        const text = await res.text();
+        let data: any = null;
+
+        if (text) {
+          try {
+            data = JSON.parse(text);
+          } catch (parseError) {
+            console.error('Destination payload parse failed:', text.slice(0, 300));
+            throw parseError;
+          }
+        }
+
+        if (!res.ok) {
+          throw new Error(data?.message || 'Unable to load destination');
+        }
 
         const item = data?.data?.destination ?? data?.destination ?? null;
         const reviewList = Array.isArray(data?.data?.reviews) ? data.data.reviews : Array.isArray(data?.reviews) ? data.reviews : [];
@@ -77,7 +91,7 @@ export default function DestinationDetailPage() {
     }
 
     load();
-  }, [id]);
+  }, [routeParam]);
 
   const destinationImages = useMemo(() => {
     if (Array.isArray(destination?.images) && destination.images.length > 0) {

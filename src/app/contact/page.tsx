@@ -35,7 +35,7 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen">
-      <section className="relative py-20 bg-gradient-to-br from-primary-900 to-dark-900 overflow-hidden">
+      <section className="relative py-20 bg-gradient-to-br from-primary-300 to-dark-700 overflow-hidden">
         <div className="absolute inset-0 bg-mesh opacity-20" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>

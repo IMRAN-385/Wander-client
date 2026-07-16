@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { Clock, ArrowLeft, Share2 } from 'lucide-react';
 import { IBlog } from '@/types';
 import { formatDate } from '@/lib/utils';
+import { blogs as fallbackBlogs } from '@/data/collections';
 
 export default function BlogDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -14,12 +15,23 @@ export default function BlogDetailPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`/api/blogs?slug=${slug}`)
-      .then(r => r.json())
-      .then(d => {
-        if (d.success) setBlog(d.data);
-      })
-      .finally(() => setLoading(false));
+    const loadBlog = async () => {
+      try {
+        const response = await fetch(`/api/blogs?slug=${slug}`);
+        const data = await response.json();
+        if (data?.success && data?.data) {
+          setBlog(data.data);
+          return;
+        }
+      } catch {
+        // fall back to local seed data below
+      }
+
+      const match = fallbackBlogs.find((post) => post.slug === slug);
+      setBlog(match || null);
+    };
+
+    loadBlog().finally(() => setLoading(false));
   }, [slug]);
 
   if (loading) {

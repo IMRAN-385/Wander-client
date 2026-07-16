@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Plus } from 'lucide-react';
 import Button from '@/components/ui/Button';
+import ProtectedRoute from '@/components/shared/ProtectedRoute';
+import { useAuth } from '@/providers/AppProvider';
 
 const CATEGORIES = ['Beach', 'Mountains', 'City', 'Nature', 'Adventure', 'Coastal'];
 const CONTINENTS = ['Asia', 'Europe', 'Africa', 'Americas', 'Oceania'];
@@ -24,8 +26,9 @@ type FormState = {
   imageUrl: string;
 };
 
-export default function AddDestinationPage() {
+function AddDestinationContent() {
   const router = useRouter();
+  const { token } = useAuth();
   const [form, setForm] = useState<FormState>({
     title: '',
     shortDescription: '',
@@ -55,9 +58,6 @@ export default function AddDestinationPage() {
     setServerError('');
 
     try {
-      const authToken =
-        typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-
       const payload = {
         title: form.title.trim(),
         shortDescription: form.shortDescription.trim(),
@@ -79,7 +79,7 @@ export default function AddDestinationPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify(payload),
       });
@@ -306,5 +306,13 @@ export default function AddDestinationPage() {
         </motion.div>
       </div>
     </div>
+  );
+}
+
+export default function AddDestinationPage() {
+  return (
+    <ProtectedRoute>
+      <AddDestinationContent />
+    </ProtectedRoute>
   );
 }
