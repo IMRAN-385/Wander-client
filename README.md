@@ -1,36 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🌍 Wanderlust – Travel Discovery Platform
 
-## Getting Started
+A modern travel discovery platform that helps users explore breathtaking destinations, discover unique travel experiences, and manage their favorite trips. Built with a clean, responsive UI and secure full-stack architecture using Next.js, TypeScript, Express.js, MongoDB, and JWT Authentication.
 
-First, run the development server:
+## 🌐 Live URL
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+https://wander-client-gilt.vercel.app/
+
+## 🚀 Backend API
+
+https://wander-server.onrender.com
+
+## 📌 Purpose
+
+Wanderlust is designed to simplify travel exploration by allowing users to browse destinations, search and filter travel packages, view detailed information, and manage travel listings through a secure dashboard. The platform focuses on delivering a fast, interactive, and visually appealing user experience.
+
+## ✨ Key Features
+
+- 🔐 JWT Authentication & Authorization
+- 👤 Secure Login & Registration
+- 🌍 Explore Popular Travel Destinations
+- 🔍 Search, Filter, Sort & Pagination
+- ❤️ Save & Manage Favorite Destinations
+- 📄 Detailed Destination Information
+- ➕ Add New Destination (Protected)
+- 🗂️ Manage Personal Listings
+- ⚡ Beautiful Framer Motion Animations
+- 🎨 Modern UI with Tailwind CSS
+- 💀 Skeleton Loaders
+- 🍞 Toast Notifications
+- 📱 Fully Responsive Design
+- 🚫 Custom 404 Page
+
+## 🛠️ NPM Packages Used
+
+| Package | Purpose |
+|---|---|
+| `next` | React Framework |
+| `react` | UI Library |
+| `typescript` | Type Safety |
+| `tailwindcss` | Utility-first CSS |
+| `framer-motion` | Smooth Animations |
+| `axios` | API Requests |
+| `react-hook-form` | Form Handling |
+| `zod` | Form Validation |
+| `react-hot-toast` | Notifications |
+| `lucide-react` | Icons |
+| `recharts` | Analytics & Charts |
+
+## 🔑 Environment Variables
+
+Create a `.env.local` file in the project root:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
+NEXT_PUBLIC_IMGBB_API_KEY=your_imgbb_api_key
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Production (Vercel)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+NEXT_PUBLIC_API_URL=https://wander-server.onrender.com/api
+NEXT_PUBLIC_IMGBB_API_KEY=your_imgbb_api_key
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🚀 Getting Started
 
-## Learn More
+```bash
+npm install
 
-To learn more about Next.js, take a look at the following resources:
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📁 Project Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```text
+src/
+│
+├── app/
+├── components/
+├── hooks/
+├── lib/
+├── providers/
+├── services/
+├── types/
+├── utils/
+└── assets/
+```
 
-## Deploy on Vercel
+## 👨‍💻 Author
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**Imran Kabir**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+GitHub: https://github.com/IMRAN-385
